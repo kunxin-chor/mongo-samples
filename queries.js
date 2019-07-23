@@ -106,3 +106,68 @@ db.listingsAndReviews.find({
 db.listingsAndReviews.find({
     amenities: { $or : ['Waterfront', 'Coffee maker'] }
 }, {address:1, amenities:1}).limit(5).pretty()
+
+// All this below are for the sample_mflix database
+db.movies.count()
+
+// Find all movies released before 2000
+db.movies.find({
+    year: {
+        $lt:2000
+    }
+}).count();
+
+db.movies.find({
+    countries: "USA"
+}).limit(10).pretty()
+
+db.movies.find({
+    countries: {
+        $nin:['USA']
+    }
+}, {title:1, countries:1}).limit(10).pretty()
+
+db.movies.find({
+    'awards.wins': {
+        $gte:3
+    }
+})
+
+db.movies.find({
+    cast:'Tom Cruise'
+})
+
+// Find movies that cast Tom Cruise OR Cameron Diaz
+db.movies.find({
+    cast: {
+        $in: ['Tom Cruise', 'Cameron Diaz']
+    }
+}).pretty().find()
+
+// Find movies that cast Tom Cruise AND Cameron Diaz
+db.movies.find({
+    cast: {
+        $all: ['Tom Cruise', 'Cameron Diaz']
+    }
+}, {title:1, cast:1}).pretty()
+
+db.movies.find({
+    directors: 'Charles Chaplin'
+}).count()
+
+// Must pay money in MongoDB for this to work
+db.movies.find({
+    $where: 'this.directors.length > 1'
+}, {title:1, directors:1}).pretty();
+
+
+db.movies.find({
+    'directors.1' : {
+        $exists: true
+    }
+}).count()
+
+// find all theatres in the state of AZ
+db.theatres.find({
+    'location.address.state':'AZ'
+}).count()
