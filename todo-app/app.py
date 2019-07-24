@@ -6,7 +6,11 @@ app = Flask(__name__)
 # STEP 1 - Create a home route and test it
 @app.route('/') # map the root route to the index function
 def index():
-    return "Hello world" 
+    
+    # STEP 2 - Blank, no logic
+    
+    # STEP 3 - Return a template
+    return render_template('index.html')
 
 
 # "magic code" -- boilerplate
