@@ -30,6 +30,16 @@ def index():
 def create_task():
     return render_template('create_task.html')
 
+#STEP A2 - Create the route to process the form
+@app.route('/task/new', methods=['POST'])
+def process_create_task():
+    #STEP A3 - Extract out the fields
+    title = request.form.get('title')
+    description = request.form.get('description')
+    
+    #STEP A4 - Test whether we got the form fields that we need
+    return title + " - " + description
+
 # "magic code" -- boilerplate
 if __name__ == '__main__':
     app.run(host=os.environ.get('IP'),
