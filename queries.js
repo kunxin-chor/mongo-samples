@@ -197,3 +197,13 @@ db.tasks.insert({
 
 
 db.tasks.find({}).pretty()
+
+// To account for non-existent fields, if you don't want to do it in code
+db.tasks.aggregate([
+    {
+        $project: {
+            title: 1,
+            description: { $ifNull: [ "$description", "No description"] }
+        }
+    }
+])

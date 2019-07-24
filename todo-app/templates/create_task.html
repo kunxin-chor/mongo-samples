@@ -14,32 +14,11 @@
 
 <body>
     <div class='container'>
-        <h1>ToDos</h1>
-
-        {% for d in data %}
-        <div class="card mt-3 mb-3">
-            <div class="card-header">{{ d['title'] }}</div>
-            <div class="card-body">
-                {% if d['description'] %}
-                {{ d['description'] }}
-                {% else %}
-                <span class='default-description'>No description available</span>
-                {% endif %}
-            </div>
-            <div class="card-footer">
-            {% if d['completed'] %}
-            Completed
-            {% else %}
-            Incomplete
-            {% endif %}
-                
-            </div>
-        </div>
-        {% endfor %}
-
-
-
-
+        <h1>Create a New Task</h1>
+        <form class='form' method='POST'>
+             {% include 'task_form.html' %}
+             <input type='submit' value='Create' class='btn btn-primary' />
+        </form>
     </div>
 
     <!-- Optional JavaScript -->

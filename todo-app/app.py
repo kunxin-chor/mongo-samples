@@ -13,8 +13,6 @@ TASKS = 'tasks'
 # 0.2. Create the connection
 conn = pymongo.MongoClient(MONGO_URI)
 
-
-
 # STEP 1 - Create a home route and test it
 @app.route('/') # map the root route to the index function
 def index():
@@ -26,6 +24,11 @@ def index():
     # STEP 3 - Return a template and assign the results to a placeholder in the template
     return render_template('index.html', data=results)
 
+
+# STEP A1 - Route to show the form
+@app.route('/task/new')
+def create_task():
+    return render_template('create_task.html')
 
 # "magic code" -- boilerplate
 if __name__ == '__main__':
