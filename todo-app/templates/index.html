@@ -14,7 +14,22 @@
 
 <body>
     <div class='container'>
+        
+          {% with messages = get_flashed_messages() %}
+              {% if messages %}
+              <div class='alert alert-success'>
+                <ul class='flashes'>
+                   {% for message in messages %}
+                   <li>{{ message }}</li>
+                   {% endfor %}
+                </ul>
+                </div>
+             {% endif %}
+          {% endwith %}
+    
+    
         <h1>ToDos</h1>
+        <a class='btn btn-primary' href="{{url_for('create_task') }}">New</a>
 
         {% for d in data %}
         <div class="card mt-3 mb-3">

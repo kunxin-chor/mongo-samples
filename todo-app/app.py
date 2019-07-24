@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages
 import os
 import pymongo
 
@@ -17,9 +17,12 @@ conn = pymongo.MongoClient(MONGO_URI)
 @app.route('/') # map the root route to the index function
 def index():
     
+    messages = get_flashed_messages()
+    print(messages)
+    
     # STEP 2 - Fetch all the existing todos --> as a Python dictionary
     results = conn[DATABASE_NAME][TASKS].find({})
-    
+
     
     # STEP 3 - Return a template and assign the results to a placeholder in the template
     return render_template('index.html', data=results)
@@ -37,11 +40,22 @@ def process_create_task():
     title = request.form.get('title')
     description = request.form.get('description')
     
-    #STEP A4 - Test whether we got the form fields that we need
-    return title + " - " + description
+    #STEP A4: Insert a new task
+    conn[DATABASE_NAME][TASKS].insert({
+        'title' : title, # right hand side title is not in quotes, so it's a variable
+        'description': description
+    })
+    #STEP A5 : Add in a flash message
+    flash("You have created the new task: " + title)
+    
+    #STEP A6 : After redirect
+    return redirect(url_for('index'))
 
 # "magic code" -- boilerplate
 if __name__ == '__main__':
+    app.secret_key = 'super secret key'
+    app.config['SESSION_TYPE'] = 'filesystem'
+    
     app.run(host=os.environ.get('IP'),
             port=int(os.environ.get('PORT')),
             debug=True)
