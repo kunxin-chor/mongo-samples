@@ -83,6 +83,10 @@ def process_update_task(taskid):
         completed = True
     else:
         completed = False
+        
+    task = conn[DATABASE_NAME][TASKS].find_one({
+        '_id':ObjectId(taskid)
+    })
     
     # Use mongo to update
     conn[DATABASE_NAME][TASKS].update({
@@ -117,6 +121,30 @@ def toggle_task(taskid):
     })
     
     flash("Task '{}' has been set to {}".format(task['title'], not task['completed']))
+    return redirect(url_for('index'))
+
+
+#STEP C1 : Add in a route to confirm with the user if he really wants to delete
+@app.route('/task/<taskid>/confirm_delete')
+def confirm_delete_task(taskid):
+    task = conn[DATABASE_NAME][TASKS].find_one({
+        '_id':ObjectId(taskid)
+    })
+    return render_template('confirm_delete_task.html', data=task)
+    
+#STEP C2: Add in a route that actually does the delete
+@app.route('/task/<taskid>/delete')
+def delete_task(taskid):
+    
+    task = conn[DATABASE_NAME][TASKS].find_one({
+        '_id':ObjectId(taskid)
+    })
+    
+    conn[DATABASE_NAME][TASKS].delete_one({
+        '_id':ObjectId(taskid)
+    })
+    
+    flash("Task: {} has been deleted".format(task['title']))
     return redirect(url_for('index'))
 
 # "magic code" -- boilerplate

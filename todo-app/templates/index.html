@@ -41,6 +41,7 @@
                 <span class='default-description'>No description available</span>
                 {% endif %}
                 <a href='{{ url_for('update_task', taskid=d['_id']) }}' class='btn btn-primary'>Edit</a>
+                <a href='{{ url_for('confirm_delete_task', taskid=d['_id']) }}' class='btn btn-danger'>Delete</a>
             </div>
             <div class="card-footer">
                 
