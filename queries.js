@@ -171,3 +171,29 @@ db.movies.find({
 db.theatres.find({
     'location.address.state':'AZ'
 }).count()
+
+//// THIS IS FOR THE TODO APP
+db.tasks.insert({
+    title: "Walk the dog",
+    completed:false
+})
+
+
+// INSERT MANY TODOS
+db.tasks.insertMany([
+    { title: "Pay the bill", completed:false },
+    { title: "Wash the clothes", completed: false },
+    { title: "Pay income tax", completed: false }
+        
+])
+
+// TODO FORMAT
+db.tasks.insert({
+    title: 'Pick up parcel from PostOffice',
+    description: 'It is at the Tiong Bahru Post Office',
+    completed: false,
+    started: false
+})
+
+
+db.tasks.find({}).pretty()
