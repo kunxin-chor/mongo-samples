@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages
 import os
 import pymongo
+from bson.objectid import ObjectId
 
 app = Flask(__name__)
 
@@ -31,7 +32,7 @@ def index():
 # STEP A1 - Route to show the form
 @app.route('/task/new')
 def create_task():
-    return render_template('create_task.html')
+    return render_template('create_task.html', data={})
 
 #STEP A2 - Create the route to process the form
 @app.route('/task/new', methods=['POST'])
@@ -50,6 +51,18 @@ def process_create_task():
     
     #STEP A6 : After redirect
     return redirect(url_for('index'))
+
+@app.route('/task/<taskid>/update')
+def update_task(taskid):
+    
+    # STEP B1 - Use the database to find by object id.
+    # If we use find_one, we get the result as dictionary
+    task = conn[DATABASE_NAME][TASKS].find_one({
+        "_id":ObjectId(taskid)
+    })
+  
+    # STEP B2 - Render the template with the existing task information
+    return render_template('update_task.html', data=task)
 
 # "magic code" -- boilerplate
 if __name__ == '__main__':
