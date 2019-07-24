@@ -40,11 +40,19 @@ def process_create_task():
     #STEP A3 - Extract out the fields
     title = request.form.get('title')
     description = request.form.get('description')
+    completed = request.form.get('completed')
+    # because what get through the form is a string
+    if completed == 'true':
+        completed = True
+    else:
+        completed = False
+    
     
     #STEP A4: Insert a new task
     conn[DATABASE_NAME][TASKS].insert({
         'title' : title, # right hand side title is not in quotes, so it's a variable
-        'description': description
+        'description': description,
+        'completed':completed
     })
     #STEP A5 : Add in a flash message
     flash("You have created the new task: " + title)
