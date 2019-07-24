@@ -63,6 +63,28 @@ def update_task(taskid):
   
     # STEP B2 - Render the template with the existing task information
     return render_template('update_task.html', data=task)
+    
+#STEP B3 - To process the update form
+@app.route('/task/<taskid>/update', methods=['POST'])
+def process_update_task(taskid):
+    title = request.form.get('title')
+    description = request.form.get('description')
+    
+    # Use mongo to update
+    conn[DATABASE_NAME][TASKS].update({
+        '_id':ObjectId(taskid)
+    }, {
+        '$set': {
+            'title' : title,
+            'description': description
+        }
+    })
+    
+    # Set the flash message
+    flash("Task updated")
+    
+    # redirect back to the index route
+    return redirect(url_for('index'))
 
 # "magic code" -- boilerplate
 if __name__ == '__main__':
