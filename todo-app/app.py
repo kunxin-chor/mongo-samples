@@ -69,6 +69,12 @@ def update_task(taskid):
 def process_update_task(taskid):
     title = request.form.get('title')
     description = request.form.get('description')
+    completed = request.form.get('completed')
+    # because what get through the form is a string
+    if completed == 'true':
+        completed = True
+    else:
+        completed = False
     
     # Use mongo to update
     conn[DATABASE_NAME][TASKS].update({
@@ -76,7 +82,8 @@ def process_update_task(taskid):
     }, {
         '$set': {
             'title' : title,
-            'description': description
+            'description': description,
+            'completed': completed
         }
     })
     

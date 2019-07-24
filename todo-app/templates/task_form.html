@@ -9,7 +9,7 @@
 <div class='form-group'>
     <div class="form-check">
         <label class="form-check-label">
-            <input type="radio" class="form-check-input" name="completed"
+            <input type="radio" class="form-check-input" name="completed" value='true'
             {%if data['completed'] %}
             checked
             {%endif%}
@@ -18,7 +18,7 @@
     </div>
     <div class="form-check">
         <label class="form-check-label">
-            <input type="radio" class="form-check-input" name="completed"
+            <input type="radio" class="form-check-input" name="completed" value='false'
             {%if not data['completed'] %}
             checked
             {%endif%}>Incomplete
