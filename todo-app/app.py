@@ -85,6 +85,24 @@ def process_update_task(taskid):
     
     # redirect back to the index route
     return redirect(url_for('index'))
+    
+@app.route('/task/<taskid>/toggle', methods=['POST'])
+def toggle_task(taskid):
+    
+    task = conn[DATABASE_NAME][TASKS].find_one({
+        "_id":ObjectId(taskid)
+    })
+    
+    conn[DATABASE_NAME][TASKS].update({
+        '_id':ObjectId(taskid)
+    }, {
+        '$set': {
+            'completed': not task['completed']
+        }
+    })
+    
+    flash("Task '{}' has been set to {}".format(task['title'], not task['completed']))
+    return redirect(url_for('index'))
 
 # "magic code" -- boilerplate
 if __name__ == '__main__':

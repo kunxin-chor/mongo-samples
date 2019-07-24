@@ -40,14 +40,17 @@
                 {% else %}
                 <span class='default-description'>No description available</span>
                 {% endif %}
+                <a href='{{ url_for('update_task', taskid=d['_id']) }}' class='btn btn-primary'>Edit</a>
             </div>
             <div class="card-footer">
-            {% if d['completed'] %}
-            Completed
-            {% else %}
-            Incomplete
-            {% endif %}
                 
+            <form method='post' action="{{url_for('toggle_task', taskid=d['_id']) }}">
+            {% if d['completed'] %}
+            Completed <input type='submit' value='Toggle' class="btn btn-primary btn-sm">
+            {% else %}
+            Incomplete <input type='submit' value='Toggle' class="btn btn-primary btn-sm">
+            {% endif %}
+            </form>
             </div>
         </div>
         {% endfor %}
