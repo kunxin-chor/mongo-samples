@@ -207,3 +207,88 @@ db.tasks.aggregate([
         }
     }
 ])
+
+
+/// THE FOLLOWING QUERIES ARE FOR THE ECOMMERCE DATABASE
+db.products.insert({
+    name : "Wireless Speaker",
+    sku: '12345A',
+    description : 'The last wireless speaker you ever need',
+    images: [
+        {
+            url: "uploaded_images/product/12345A/hero-image.png",
+            thumbnail: "uploaded_images/product/12345A/hero-image-30x30.png"
+        },
+        {
+            url: "uploaded_images/product/12345A/happy-couples-with-product-image.png",
+            thumbnail: "uploaded_images/product/12345A/happy-couples-with-product-image-30x30.png"
+        }
+    ],
+    category:{
+        name: 'Electronics'
+    },
+    tags: [
+        'Affordable', 'Chic', 'Wireless', 'IOT'
+    ],
+    variants: [
+        {
+            color: 'black',
+            strap: 'rainbow'
+        },
+        {
+            color: 'white',
+            strap: 'grey'
+        }
+    ]
+});
+
+db.invoices.insert({
+    customer: {
+        name:'Tan Ah Kow',
+        email:'tanahkow@somewhere.com'
+    },
+    product: {
+        id: ObjectId("5d382322d1bc9ea9b588fbc5"),
+        name: 'Wireless Speaker',
+        sku: '12345A',
+        cost: 33.37,
+        variant: {
+            color: 'white',
+            strap: 'grey'
+        },
+        quantity: 2
+    }
+})
+
+db.invoices.find({
+    'product.id' :ObjectId("5d382322d1bc9ea9b588fbc5")
+})
+
+db.users.insert({
+    name: 'Tan Ah Kow',
+    email: 'tanahkow@somewhere.com'
+})
+
+db.credit_cards.insert({
+    number: '4326333322221111',
+    type: 'VISA',
+    owner: ObjectId('5d3825903735c086d1062153')
+   
+})
+
+db.credit_cards.insert({
+    number: '5526111122223333',
+    type: 'MasterCard',
+    owner: ObjectId('5d3825903735c086d1062153')
+})
+
+// STEPS TO FIND WHAT CREDIT CARDS TANAHKOW@SOMEwHERE.COM HAS
+
+// 1. which user does tanahkow@somewhere.com belongs to
+user = db.users.findOne({
+    email:'tanahkow@somewhere.com'
+})
+
+db.credit_cards.find({
+    owner: user._id
+}).pretty()

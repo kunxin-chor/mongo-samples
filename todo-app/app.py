@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages
+from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages, jsonify
 import os
 import pymongo
 from bson.objectid import ObjectId
+from bson.json_util import dumps
 
 app = Flask(__name__)
 
@@ -146,7 +147,40 @@ def delete_task(taskid):
     
     flash("Task: {} has been deleted".format(task['title']))
     return redirect(url_for('index'))
+    
+    
+@app.route('/api/v1/todos', methods=['GET'])
+def api_get_tasks():
+    
+    tasks = conn[DATABASE_NAME][TASKS].aggregate([
+    {
+        '$project': {
+            'title': 1,
+            'description': { '$ifNull': [ "$description", "No description"] },
+            'completed': { '$ifNull': ['$completed', False] }
+        }
+     }
+    ])
 
+    results = []
+    for t in tasks:
+        t['_id'] = str(t['_id'])
+        results.append(t)
+    return jsonify(results)
+    
+    
+@app.route('/api/v2/todos', methods=['GET'])
+def api_get_tasks_v2():
+    tasks = conn[DATABASE_NAME][TASKS].find()
+    tasks_lists=[]
+    for t in tasks:
+        t['_id'] = str(t['_id'])
+        tasks_lists.append(t)
+        
+        
+    return jsonify(tasks_lists)
+    
+    
 # "magic code" -- boilerplate
 if __name__ == '__main__':
     app.secret_key = 'super secret key'
