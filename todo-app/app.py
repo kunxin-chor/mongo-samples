@@ -1,29 +1,20 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages, jsonify
 import os
 import pymongo
+import model
 from bson.objectid import ObjectId
 from bson.json_util import dumps
 
 app = Flask(__name__)
-
-# STEP 0 - Create the connection to mongo
-# 0.1. Retrieve the environment variables
-MONGO_URI = os.getenv('MONGO_URI')
-DATABASE_NAME = 'todos'
-TASKS = 'tasks'
-
-# 0.2. Create the connection
-conn = pymongo.MongoClient(MONGO_URI)
 
 # STEP 1 - Create a home route and test it
 @app.route('/') # map the root route to the index function
 def index():
     
     messages = get_flashed_messages()
-    print(messages)
-    
+
     # STEP 2 - Fetch all the existing todos --> as a Python dictionary
-    results = conn[DATABASE_NAME][TASKS].find({})
+    results = model.get_all_tasks()
 
     
     # STEP 3 - Return a template and assign the results to a placeholder in the template
@@ -50,11 +41,8 @@ def process_create_task():
     
     
     #STEP A4: Insert a new task
-    conn[DATABASE_NAME][TASKS].insert({
-        'title' : title, # right hand side title is not in quotes, so it's a variable
-        'description': description,
-        'completed':completed
-    })
+    model.create_task(title, description, completed)
+    
     #STEP A5 : Add in a flash message
     flash("You have created the new task: " + title)
     
@@ -66,9 +54,7 @@ def update_task(taskid):
     
     # STEP B1 - Use the database to find by object id.
     # If we use find_one, we get the result as dictionary
-    task = conn[DATABASE_NAME][TASKS].find_one({
-        "_id":ObjectId(taskid)
-    })
+    model.find_task(taskid)
   
     # STEP B2 - Render the template with the existing task information
     return render_template('update_task.html', data=task)
@@ -85,21 +71,10 @@ def process_update_task(taskid):
     else:
         completed = False
         
-    task = conn[DATABASE_NAME][TASKS].find_one({
-        '_id':ObjectId(taskid)
-    })
+    task = model.find_task(taskid)
     
     # Use mongo to update
-    conn[DATABASE_NAME][TASKS].update({
-        '_id':ObjectId(taskid)
-    }, {
-        '$set': {
-            'title' : title,
-            'description': description,
-            'completed': completed
-        }
-    })
-    
+    model.update_task(taskid, title, description, completed)
     # Set the flash message
     flash("Task updated")
     
@@ -109,17 +84,7 @@ def process_update_task(taskid):
 @app.route('/task/<taskid>/toggle', methods=['POST'])
 def toggle_task(taskid):
     
-    task = conn[DATABASE_NAME][TASKS].find_one({
-        "_id":ObjectId(taskid)
-    })
-    
-    conn[DATABASE_NAME][TASKS].update({
-        '_id':ObjectId(taskid)
-    }, {
-        '$set': {
-            'completed': not task['completed']
-        }
-    })
+    task = model.toggle_task(taskid)
     
     flash("Task '{}' has been set to {}".format(task['title'], not task['completed']))
     return redirect(url_for('index'))
@@ -128,22 +93,16 @@ def toggle_task(taskid):
 #STEP C1 : Add in a route to confirm with the user if he really wants to delete
 @app.route('/task/<taskid>/confirm_delete')
 def confirm_delete_task(taskid):
-    task = conn[DATABASE_NAME][TASKS].find_one({
-        '_id':ObjectId(taskid)
-    })
+    task = model.find_task(taskid)
     return render_template('confirm_delete_task.html', data=task)
     
 #STEP C2: Add in a route that actually does the delete
 @app.route('/task/<taskid>/delete')
 def delete_task(taskid):
     
-    task = conn[DATABASE_NAME][TASKS].find_one({
-        '_id':ObjectId(taskid)
-    })
+    task = model.find_task(taskid)
     
-    conn[DATABASE_NAME][TASKS].delete_one({
-        '_id':ObjectId(taskid)
-    })
+    model.delete_task(taskid)
     
     flash("Task: {} has been deleted".format(task['title']))
     return redirect(url_for('index'))
@@ -152,29 +111,29 @@ def delete_task(taskid):
 def client_tasks():
     return render_template('client_tasks.html')
 
-@app.route('/api/v1/todos', methods=['GET'])
-def api_get_tasks():
+# @app.route('/api/v1/todos', methods=['GET'])
+# def api_get_tasks():
     
-    tasks = conn[DATABASE_NAME][TASKS].aggregate([
-    {
-        '$project': {
-            'title': 1,
-            'description': { '$ifNull': [ "$description", "No description"] },
-            'completed': { '$ifNull': ['$completed', False] }
-        }
-     }
-    ])
+#     tasks = conn[DATABASE_NAME][TASKS].aggregate([
+#     {
+#         '$project': {
+#             'title': 1,
+#             'description': { '$ifNull': [ "$description", "No description"] },
+#             'completed': { '$ifNull': ['$completed', False] }
+#         }
+#      }
+#     ])
 
-    results = []
-    for t in tasks:
-        t['_id'] = str(t['_id'])
-        results.append(t)
-    return jsonify(results)
+#     results = []
+#     for t in tasks:
+#         t['_id'] = str(t['_id'])
+#         results.append(t)
+#     return jsonify(results)
     
     
 @app.route('/api/v2/todos', methods=['GET'])
 def api_get_tasks_v2():
-    tasks = conn[DATABASE_NAME][TASKS].find()
+    tasks = model.get_all_tasks()
     tasks_lists=[]
     for t in tasks:
         t['_id'] = str(t['_id'])
@@ -197,14 +156,8 @@ def api_process_create_task():
     else:
         completed = False
     
-    
     #STEP A4: Insert a new task
-    conn[DATABASE_NAME][TASKS].insert({
-        'title' : title, # right hand side title is not in quotes, so it's a variable
-        'description': description,
-        'completed':completed
-    })
-  
+    model.create_task(title, description, completed)
     
     #STEP A6 : After redirect
     return jsonify({
@@ -214,17 +167,7 @@ def api_process_create_task():
 @app.route('/api/v1/task/<taskid>/toggle', methods=['PATCH'])
 def api_toggle_task(taskid):
     
-    task = conn[DATABASE_NAME][TASKS].find_one({
-        "_id":ObjectId(taskid)
-    })
-    
-    conn[DATABASE_NAME][TASKS].update({
-        '_id':ObjectId(taskid)
-    }, {
-        '$set': {
-            'completed': not task['completed']
-        }
-    })
+    task = model.toggle_task(taskid)
     
     return jsonify({
         'message':'success'
@@ -233,9 +176,7 @@ def api_toggle_task(taskid):
 @app.route('/api/v1/task/<taskid>', methods=['DELETE'])
 def api_delete_task(taskid):
     
-    conn[DATABASE_NAME][TASKS].delete_one({
-        '_id':ObjectId(taskid)
-    })
+    model.delete_task(taskid)
     
     return jsonify({
         'message':'success'
