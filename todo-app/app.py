@@ -148,7 +148,10 @@ def delete_task(taskid):
     flash("Task: {} has been deleted".format(task['title']))
     return redirect(url_for('index'))
     
-    
+@app.route('/client/tasks')
+def client_tasks():
+    return render_template('client_tasks.html')
+
 @app.route('/api/v1/todos', methods=['GET'])
 def api_get_tasks():
     
@@ -179,8 +182,34 @@ def api_get_tasks_v2():
         
         
     return jsonify(tasks_lists)
+
+@app.route('/api/v1/todos', methods=['POST'])
+def api_process_create_task():
+    #STEP A3 - Extract out the fields
+    title = request.json.get('title')
+    description = request.json.get('description')
+    completed = request.json.get('completed')
+    # because what get through the form is a string
+    if completed == 'true':
+        completed = True
+    else:
+        completed = False
     
     
+    #STEP A4: Insert a new task
+    conn[DATABASE_NAME][TASKS].insert({
+        'title' : title, # right hand side title is not in quotes, so it's a variable
+        'description': description,
+        'completed':completed
+    })
+  
+    
+    #STEP A6 : After redirect
+    return jsonify({
+        'message': 'success'
+    })
+    
+
 # "magic code" -- boilerplate
 if __name__ == '__main__':
     app.secret_key = 'super secret key'
