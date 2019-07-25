@@ -178,6 +178,8 @@ def api_get_tasks_v2():
     tasks_lists=[]
     for t in tasks:
         t['_id'] = str(t['_id'])
+        if 'completed' not in t:
+            t['completed'] = False
         tasks_lists.append(t)
         
         
@@ -209,6 +211,36 @@ def api_process_create_task():
         'message': 'success'
     })
     
+@app.route('/api/v1/task/<taskid>/toggle', methods=['PATCH'])
+def api_toggle_task(taskid):
+    
+    task = conn[DATABASE_NAME][TASKS].find_one({
+        "_id":ObjectId(taskid)
+    })
+    
+    conn[DATABASE_NAME][TASKS].update({
+        '_id':ObjectId(taskid)
+    }, {
+        '$set': {
+            'completed': not task['completed']
+        }
+    })
+    
+    return jsonify({
+        'message':'success'
+    })
+
+@app.route('/api/v1/task/<taskid>', methods=['DELETE'])
+def api_delete_task(taskid):
+    
+    conn[DATABASE_NAME][TASKS].delete_one({
+        '_id':ObjectId(taskid)
+    })
+    
+    return jsonify({
+        'message':'success'
+    })
+
 
 # "magic code" -- boilerplate
 if __name__ == '__main__':
