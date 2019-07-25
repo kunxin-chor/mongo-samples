@@ -1,14 +1,9 @@
-         ___        ______     ____ _                 _  ___  
-        / \ \      / / ___|   / ___| | ___  _   _  __| |/ _ \ 
-       / _ \ \ /\ / /\___ \  | |   | |/ _ \| | | |/ _` | (_) |
-      / ___ \ V  V /  ___) | | |___| | (_) | |_| | (_| |\__, |
-     /_/   \_\_/\_/  |____/   \____|_|\___/ \__,_|\__,_|  /_/ 
- ----------------------------------------------------------------- 
+How to run the test:
 
+1. cd todo_app
+2. python3 -m unittest
 
-Hi there! Welcome to AWS Cloud9!
+How to run an individual test cases (example:)
 
-To get started, create some files, play with the terminal,
-or visit https://docs.aws.amazon.com/console/cloud9/ for our documentation.
-
-Happy coding!
+1. python3 -m unittest
+2. python3 -m unittest test_model.ModelTest.test_can_toggle_task
