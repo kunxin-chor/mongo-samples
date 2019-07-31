@@ -14,6 +14,11 @@ images_upload_set = UploadSet('images', IMAGES)
 configure_uploads(app, images_upload_set)
 #end configure uploads
 
+#configure mongo
+MONGO_URI = os.getenv('MONGO_URI')
+DATABASE_NAME = 'uploads_demo'
+#endconfigure
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -22,6 +27,8 @@ def index():
 def upload():
     image = request.files.get('image')
     filename = images_upload_set.save(image)
+    
+    # create the mongo record below
     return filename
 
 # "magic code" -- boilerplate
