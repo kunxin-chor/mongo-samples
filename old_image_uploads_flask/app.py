@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from flask_uploads import UploadSet, IMAGES, configure_uploads
 import pymongo
 import os
@@ -7,9 +7,10 @@ app = Flask(__name__)
 
 #configure uploads
 TOP_LEVEL_DIR = os.path.abspath(os.curdir)
-upload_dir = '/uploads/img'
+upload_dir = '/static/uploads/img/'
 app.config["UPLOADS_DEFAULT_DEST"] = TOP_LEVEL_DIR + upload_dir
 app.config["UPLOADED_IMAGES_DEST"] = TOP_LEVEL_DIR + upload_dir
+app.config["UPLOADED_IMAGES_URL"] = upload_dir
 
 images_upload_set = UploadSet('images', IMAGES)
 configure_uploads(app, images_upload_set)
@@ -33,15 +34,14 @@ def upload():
     
     # create the mongo record below
     db["images"].insert_one({
-        'image_url' : upload_dir + '/' + filename
+        'image_url' : images_upload_set.url(filename)
     })
-    return filename
+    return redirect(url_for('gallery'))
     
 @app.route('/gallery')
 def gallery():
     all_images = db['images'].find({});
-    return render_template('gallery.html', all_images=all_images,
-        images_upload_set=images_upload_set)
+    return render_template('gallery.html', all_images=all_images)
     
 
 # "magic code" -- boilerplate
